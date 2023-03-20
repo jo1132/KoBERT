@@ -5,6 +5,7 @@ git clone https://github.com/jo1132/KoBERT.git
 
 # Install libraries
 ```python
+export TORCH_CUDA_ARCH_LIST=8.0
 apt update
 apt upgrade -y
 /usr/local/bin/python -m pip install --upgrade pip
