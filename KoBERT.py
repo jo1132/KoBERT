@@ -21,17 +21,6 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 bertmodel, vocab = get_pytorch_kobert_model(cachedir=".cache")
 
-df = pd.read_csv('./Clasffi_annotation_KEMDy19_20.csv')
-df = df.dropna(axis=0)
-data = []
-for i in range(len(df)):
-    data.append([df.iloc[i]['Script'], df.iloc[i]['Valence']])
-
-pivot = round(len(data)*0.8)
-dataset_train = data[:pivot]
-dataset_test = data[pivot:]
-
-
 tokenizer = get_tokenizer()
 tok = nlp.data.BERTSPTokenizer(tokenizer, vocab, lower=False)
 
@@ -59,17 +48,25 @@ max_grad_norm = 1
 log_interval = 200
 learning_rate =  5e-5
 
+
+df = pd.read_csv('./Clasffi_annotation_KEMDy19_20.csv')
+df = df.dropna(axis=0)
+data = []
+for i in range(len(df)):
+    data.append([str(df.iloc[i]['Script']), df.iloc[i]['Valence']])
+pivot = round(len(data)*0.8)
+dataset_train = data[:pivot]
+dataset_test = data[pivot:]
 data_train = BERTDataset(dataset_train, 0, 1, tok, max_len, True, False)
 data_test = BERTDataset(dataset_test, 0, 1, tok, max_len, True, False)
 train_dataloader = torch.utils.data.DataLoader(data_train, batch_size=batch_size, num_workers=5)
 test_dataloader = torch.utils.data.DataLoader(data_test, batch_size=batch_size, num_workers=5)
 
-
 class BERTClassifier(nn.Module):
     def __init__(self,
                  bert,
                  hidden_size = 768,
-                 num_classes=2,
+                 num_classes=7,
                  dr_rate=None,
                  params=None):
         super(BERTClassifier, self).__init__()
